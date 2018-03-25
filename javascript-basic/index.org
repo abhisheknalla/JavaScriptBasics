@@ -1,0 +1,268 @@
+# ;; -*- mode: org; fill-column: 60; -*-
+#+TITLE: Assignment: Basic Javascript
+#+EXCLUDE_TAGS: solution
+#+PROPERTY: session *js*
+#+PROPERTY: results output
+
+# ------------------------------
+#  uncomment to tangle solution
+# #+PROPERTY: tangle main.js
+
+# uncomment to suppress tangling
+#+PROPERTY: tangle no
+# ------------------------------
+
+#+PROPERTY: exports code
+#+TAGS: boilerplate(b) notes(n) solution(s)
+#+EXCLUDE_TAGS: boilerplate solution noexport
+#+SETUPFILE: ../../org-templates/level-2.org
+
+* Problems
+Write function definitions for the following.
+
+** =fifthDay=
+*** Problem
+
+   Write a function =fifthDay= which does not take any
+   arguments but returns the fifth day by considering
+   today's date. Search for inbuilt functions for getting
+   today's date and try using =JSON= object to store any
+   kind of mapping.
+
+   *For example:* If today's date is 2017-01-20 Friday, then your function should
+   return a string "Wednesday".
+
+   Make sure the return value of your function always belongs to
+
+   [ ="Monday"=, ="Tuesday"=, ="Wednesday"=, ="Thursday"=,
+   ="Friday"=, ="Saturday"=, ="Sunday"= ] (Case-Sensitive)
+
+*** Solution                 :solution:
+#+BEGIN_SRC javascript
+
+var fifthDay = function () {
+    var thisDay = new Date().getDay(),
+        fifth = (thisDay + 5) % 7,
+        mapping = {0: "Sunday",
+                   1: "Monday",
+                   2: "Tuesday",
+                   3: "Wednesday",
+                   4: "Thursday",
+                   5: "Friday",
+                   6: "Saturday"};
+
+    return mapping[fifth];
+};
+
+#+END_SRC
+
+*** Test cases
+#+NAME: fifthDay Tests
+
+For this question, your function should have the same output
+for one day (24 hrs) and change on the next day.  There are
+no test cases for this problem as there is no input provided
+to the function, instead it should internally determine
+today's date.
+
+** =altSpaceToUnderscore=
+*** Problem
+
+   Write a function called =altSpaceToUnderscore= which
+   takes a string and replaces every even space in the
+   string with an underscore.  The function should discard
+   any leading or trailing spaces and not consider them
+   for replacement. You can use in-built functions like
+   =trim=, =split=, =splice=, =substr=, etc for operations
+   on string.
+
+   *For example:* ="   Hello there, how are you !!   "= should
+   return ="Hello there,_how are_you !!"=
+
+*** Solution                                  :solution:
+#+BEGIN_SRC javascript
+var altSpaceToUnderscore = function (inpString) {
+    inpString = inpString.trim();
+    var parts = inpString.split(" "),
+        result = parts[0];
+    for (var i = 1 ; i < parts.length ; ++i) {
+        if (i & 1) {  // i is odd
+          result += " " + parts[i];
+        }
+        else {
+          result += "_" + parts[i];
+        }
+    }
+    return result;
+};
+#+END_SRC
+
+*** Test cases
+#+NAME: altSpaceToUnderscore Tests
+#+BEGIN_SRC javascript
+console.assert(altSpaceToUnderscore("Hello there, how are you !!") === "Hello there,_how are_you !!");
+console.assert(altSpaceToUnderscore("Hello world") === "Hello world");
+console.assert(altSpaceToUnderscore(" a b c d e f g") === "a b_c d_e f_g")
+#+END_SRC
+
+** =interestingSort=
+
+*** Problem
+
+   Write a function called =interestingSort= which takes a
+   string and returns a string which is sorted in the
+   following way -
+
+   -  First part of the final string is the part obtained by
+     sorting characters in between 'a' and 'm' (both
+     inclusive) lexicographically.
+
+   -  Second part of the final string contains the other
+     characters in the same order as in the input string.
+
+
+   Input string will only contain lower case characters. You
+   can use in-built functions like =sort=, =filter=, =join=, etc.
+
+   *For example:* "bazyx" should return "abzyx"
+
+*** Solution                                  :solution:
+
+#+BEGIN_SRC javascript
+var interestingSort = function (inpString) {
+    function isFirst (inpChar) {
+        return (inpChar >= 'a' && inpChar <= 'm');
+    }
+
+    function isSecond (inpChar) {
+        return !isFirst(inpChar);
+    }
+
+    var allChars = inpString.split(""),
+        firstPart = allChars.filter(isFirst).sort(),
+        secondPart = allChars.filter(isSecond);
+
+    return firstPart.join("") + secondPart.join("");
+};
+#+END_SRC
+
+*** Test cases
+#+NAME: interestingSort Tests
+#+BEGIN_SRC javascript
+console.assert(interestingSort("mob") === "bmo");
+console.assert(interestingSort("interesting") === "eegiintrstn");
+console.assert(interestingSort("bazyx") === "abzyx");
+console.assert(interestingSort("abcdefghijklmnopqrstuvwxyz") === "abcdefghijklmnopqrstuvwxyz");
+#+END_SRC
+
+** =getMeNextFirst=
+
+*** Problem
+
+   Write a function named =getMeNextFirst= which takes a
+   string containing white spaces and transforms the string
+   such that every word gets appended with the first
+   character of the next word in the string.  Remove the
+   leading trailing white spaces so that they are not considered in
+   your algorithm. You should use functions like =filter=, =join=,
+   =slice=, etc to write an elegant solution.
+
+   *For example:* "Hello world !!" should return "Hellow orld! !"
+
+*** Solution                                  :solution:
+#+BEGIN_SRC javascript
+var getMeNextFirst = function (inpString) {
+    function notNull (word) {
+        return word != "";
+    }
+
+    inpString = inpString.trim();
+    var words = inpString.split(/\s+/);
+    for (var i = 0 ; i < words.length - 1 ; ++i) {
+        words[i] = words[i] + words[i + 1][0];
+        words[i + 1] = words[i + 1].slice(1);
+    }
+    words = words.filter(notNull);
+    return words.join(" ");
+};
+#+END_SRC
+
+*** Test cases
+#+NAME: getMeNextFirst tests
+#+BEGIN_SRC javascript
+console.assert(getMeNextFirst("Hello world !!") === "Hellow orld! !");
+console.assert(getMeNextFirst("Hello a b cd") === "Helloa b c d");
+console.assert(getMeNextFirst("  a b c d  ") === "ab c d");
+#+END_SRC
+
+* Instructions
+
+** File template
+   - Your final =main.js= file should look something like this
+
+#+BEGIN_SRC javascript
+var fifthDay = function () {
+    ...
+};
+
+var altSpaceToUnderscore = function (inpString) {
+    ...
+};
+
+var interestingSort = function (inpString) {
+    ...
+};
+
+var getMeNextFirst = function (inpString) {
+    ...
+};
+
+// Export the definitions for automated evaluation
+module.exports.fifthDay = fifthDay;
+module.exports.altSpaceToUnderscore = altSpaceToUnderscore;
+module.exports.interestingSort = interestingSort;
+module.exports.getMeNextFirst = getMeNextFirst;
+
+#+END_SRC
+
+** Evaluation
+   - You will be graded according to various other test cases as
+     well as the quality of your solution (Usage of in-built functions
+     wherever possible).
+
+** Naming convention
+
+   - 1. Use the same names of functions as mentioned in the
+     questions.
+
+   - 2. All the questions should be in the same file, and
+     the file is to be called "main.js".
+
+** Directory Structure
+
+  - 1. Each student has access to a repository whose name is
+    the roll-number of the student.
+
+  - 2. In your GitLab repository, you *must* follow the
+    directory structure as below:
+
+     #+BEGIN_EXAMPLE
+     -------------------------
+     <roll-no>
+     |
+     `----assignment-solutions
+          |
+          `--- assignment-4
+               |--- main.js
+     ------------------------
+     #+END_EXAMPLE
+
+** Strict Adherence
+
+If you do not adhere to this directory structure and naming,
+you *will* lose marks. The evaluation of this homework is
+*automated*.  So, please make sure that you don't miss
+hyphens and upper case letters in file, directory and
+function names.  No requests for regrading of your homework
+will be entertained if the directory structure or naming
+convention is not followed!

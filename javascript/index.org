@@ -1,0 +1,397 @@
+# ;; -*- mode: org; fill-column: 60; -*-
+#+TITLE: Assignment: Functional Javascript
+#+EXCLUDE_TAGS: solution
+#+PROPERTY: session *js*
+#+PROPERTY: results output
+
+# ------------------------------
+#  uncomment to tangle solution
+# #+PROPERTY: tangle main.js
+
+# uncomment to suppress tangling
+#+PROPERTY: tangle no
+# ------------------------------
+
+#+PROPERTY: exports code
+#+TAGS: boilerplate(b) notes(n) solution(s)
+#+EXCLUDE_TAGS: boilerplate solution noexport
+#+SETUPFILE: ../../org-templates/level-2.org
+
+* Problems
+Write function definitions for the following.
+
+
+** =composition=
+*** Problem
+
+Write a function =composition= which returns the composition
+of two input functions.
+
+*** Solution    :solution:
+#+BEGIN_SRC
+var composition = function (f, g) {
+  return function(x) {
+     return f ( g ( x ) );
+  }
+}
+#+END_SRC
+
+*** Test cases
+#+NAME: composition Tests
+#+BEGIN_SRC javascript
+
+  add1 = function(x) { return x + 1; };
+  mul2 = function(x) {return x * 2; };
+
+  console.assert ( composition ( add1 , mul2 ) ( 2 ) === 5);
+  console.assert ( composition ( mul2 , add1 ) ( 2 ) === 6 );
+
+#+END_SRC
+
+** =nthPowerFunc=
+*** Problem
+
+   Write a function =nthPowerFunc= which takes a function
+   func and a number n and returns the nth power of that
+   function.
+
+   *Example:* This function should return a function which
+   will apply the input function func, n times consecutively
+   to the given input. If func is add1 and n is 5, then the
+   returned function will be a function which will add 5 to
+   it's given input value.
+
+*** Solution                 :solution:
+#+BEGIN_SRC javascript
+
+var nthPowerFunc = function (func, n) {
+  if( n == 1) return func;
+  else {
+    return function(x) {
+      return nthPowerFunc (func, n - 1) ( func ( x ) );
+    } 
+  }
+}
+
+#+END_SRC
+
+*** Test cases
+#+NAME: nthPowerFunc Tests
+#+BEGIN_SRC javascript
+
+  add1 = function(x) { return x + 1; };
+  mul2 = function(x) { return x * 2; };
+  console.assert(nthPowerFunc(add1, 5) (0) === 5);
+  console.assert(nthPowerFunc(add1, 11) (10) === 21);
+  console.assert(nthPowerFunc(mul2, 5) (10) === 320);
+  console.assert(nthPowerFunc(mul2, 10) (1) === 1024);
+
+#+END_SRC
+
+
+** =composeFunctionsInArray= 
+
+*** Problem
+
+    Given an array containing functions and some
+    integers. Write a function =composeFunctionsInArray=
+    which takes the composition of all the function inside
+    the array ignoring the integers and returns the
+    composition of all the functions inside the array.
+    
+    *Note:* Use the =composition= function declared above
+    and try to use =arr.filter= and =arr.reduce= for maximum
+    marks.
+    
+*** Solution                 :solution:
+#+BEGIN_SRC javascript
+
+var composeFunctionsInArray = function (arr) {
+  return arr . filter ( function (x) {
+    return x . constructor === Function;
+  } ) . reduce ( composition ) ;
+}
+#+END_SRC
+
+*** Test cases
+#+NAME: composeFunctionsInArray Tests
+#+BEGIN_SRC javascript
+
+  add1 = function(x) { return x + 1; };
+  mul2 = function(x) { return x * 2; };
+
+  console.assert( composeFunctionsInArray ( [ add1, 1, mul2 ] ) ( 4 ) === 9 );
+  console.assert( composeFunctionsInArray ( [ add1, 1, mul2, 1, 1, 1, 1 ] ) ( 4 ) === 9 );
+  console.assert( composeFunctionsInArray ( [ add1, 1, mul2, 1, 1, 1, 1, add1 ] ) ( 3 ) === 9 );
+
+#+END_SRC
+
+** =average= 
+
+*** Problem
+
+    Given an array containing numbers, write a function that
+    computes the average of the numbers in the array.
+    
+    *Note:* Use =arr.reduce= for full marks.
+    
+*** Solution                 :solution:
+#+BEGIN_SRC javascript
+
+var average = function (arr) {
+  return arr.reduce(function(x, y){
+    return x + y;
+  }, 0) / arr.reduce(function(x,y) {
+    return x + 1;
+  }, 0);
+}
+
+#+END_SRC
+
+*** Test cases
+#+NAME: average Tests
+#+BEGIN_SRC javascript
+
+  var equal = function(x, y) { EPS = 0.01; return (Math.abs(x - y) <= EPS); };
+  console.assert( equal ( average ( [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] ) , 5.5 ));
+  console.assert( equal ( average ( [10, 10] ) , 10 ));
+  console.assert( equal ( average ( [101] ) , 101 ));
+  console.assert( equal ( average ( [100, 102] ) , 101 ));
+
+#+END_SRC
+
+
+** =averageMoreThanX= 
+
+*** Problem
+
+    Given an array containing numbers, write a function
+    =averageMoreThanX= that takes an array arr and a number
+    x as argument and computes average of all the number
+    more than equal to X.
+    
+    *Note:* Use =arr.filter= and =average= function you
+    wrote above for full marks.
+    
+*** Solution                 :solution:
+#+BEGIN_SRC javascript
+
+var averageMoreThanX = function (arr, x) {
+  return average(arr.filter(function(val) {
+    return val >= x;
+  }));
+}
+#+END_SRC
+
+*** Test cases
+#+NAME: averageMoreThanX Tests
+#+BEGIN_SRC javascript
+
+  var equal = function(x, y) { EPS = 0.01; return (Math.abs(x - y) <= EPS); };
+  console.assert( equal ( averageMoreThanX ( [2, 2, 6, 6, 1, 1], 2 ), 4 ));
+  console.assert( equal ( averageMoreThanX ( [2, 2, 6, 6, 2, 2], 0 ), 3.3333 ));
+
+#+END_SRC
+
+
+
+** =moreThanK=
+
+*** Problem
+
+  Write a function =moreThanK= that takes an array arr and a
+  number k as arguments and returns the count of numbers
+  more than equal to k in the array.
+  
+  *Note:* Use =arr.reduce= for maximum marks.
+  
+*** Solution                 :solution:
+#+BEGIN_SRC javascript
+
+var moreThanK = function (arr, k) {
+  return arr.reduce(function(accumulator, curr) {
+    return accumulator + ((curr >= k) ? 1 : 0);
+  }, 0);
+}
+
+#+END_SRC
+
+*** Test cases
+#+NAME: moreThanK Tests
+#+BEGIN_SRC javascript
+
+  console.assert ( moreThanK ( [1,2,2,1,2,1,2,1,5], 2) === 5);
+  console.assert ( moreThanK ( [1,2,2,2,1,2,1,1], 2) === 4 );
+
+#+END_SRC
+
+
+** =moreThanKArr=
+
+*** Problem
+
+  Write a function =moreThanKArr= that takes an array arr1
+  and another array arr2 as arguments.  And returns an array
+  of the size arr2, each index i in the returned array
+  contains the count of numbers more than equal to arr2[i]
+  in arr1.
+  
+  Example : If *arr1 = [3, 3, 3, 2, 1, 3, 2, 1, 3, 4, 5]*
+  and *arr2 = [4, 2, 3, 1]*, then the function will return
+  *[2, 9, 7, 11]* because there are 2 numbers more than
+  equal to 4 in arr1, 9 numbers more than equal to 2 in
+  arr1, 7 number more than equal to 3 in arr1 and 11 numbers
+  more than equal to 1 in arr1.
+  
+  *Note:* Use =array.map= and =moreThanK= function you wrote
+  above for maximum marks.
+  
+*** Solution                 :solution:
+#+BEGIN_SRC javascript
+
+var moreThanKArr = function (arr1, arr2) {
+  return arr2.map(function(val) {
+    return moreThanK(arr1, val);
+  });
+}
+
+#+END_SRC
+
+*** Test cases
+#+NAME: moreThanKArr Tests
+#+BEGIN_SRC javascript
+
+  arrayEqual = function(arr1, arr2) { return JSON.stringify(arr1) === JSON.stringify(arr2); };
+  console.assert( arrayEqual ( moreThanKArr ([1,2,3,1,2,1,1,1,2,1,2,3,1,2,3], [1,2,3]), [15, 8, 3]));
+
+#+END_SRC
+
+
+** =createCounter=
+ 
+*** Problem
+
+    Write a function =createCounter= which will return a new
+    function everytime that can be used as a counter,
+    meaning, the returned function on calling will tell how
+    many times the returned function was called before.
+    
+    
+    *Example:* Suppose you call, f = createCounter(), and g
+    = createCounter(), then f and g are two functions
+    returned. On calling f() for the first time it returns
+    0, on calling f() again it returns 1. Similarly, on
+    calling g() for the first time it returns 0 and the
+    return value of g() gets incremented by 1 each time it's
+    called again. See testcases for more clarity.
+    
+*** Solution                 :solution:
+#+BEGIN_SRC javascript
+
+var createCounter = function () {
+  var count = 0;
+  return function() {
+    return count++;
+  }
+}
+#+END_SRC
+
+
+*** Test cases
+#+NAME: createCounter Tests
+#+BEGIN_SRC javascript
+
+  var f = createCounter();
+  var g = createCounter();
+  console.assert(f() === 0);
+  console.assert(g() === 0);
+  console.assert(g() === 1);
+  console.assert(f() === 1);
+  var h = createCounter();
+  console.assert(h() === 0);
+  console.assert(h() === 1);
+  console.assert(h() === 2);
+  console.assert(h() === 3);
+  console.assert(h() === 4);
+  console.assert(g() === 2);
+
+
+#+END_SRC
+
+
+* Instructions
+
+** File template
+   - Your final =main.js= file should look something like this
+
+#+BEGIN_SRC javascript
+
+var composition = function (f, g) { ...  };
+
+var nthPowerFunc = function (func, n) { ...  };
+
+var composeFunctionsInArray = function (arr) { ...  };
+
+var average = function (arr) { ...  };
+
+var averageMoreThanX = function (arr, x) { ...  };
+
+var moreThanK = function (arr, k) { ...  };
+
+var moreThanKArr = function (arr1, arr2) { ...  };
+
+var createCounter = function () { ...  };
+
+// Export the definitions for automated evaluation
+module.exports.composition = composition;
+module.exports.nthPowerFunc = nthPowerFunc;
+module.exports.composeFunctionsInArray =
+composeFunctionsInArray; module.exports.average = average;
+module.exports.averageMoreThanX = averageMoreThanX;
+module.exports.moreThanK = moreThanK;
+module.exports.moreThanKArr = moreThanKArr;
+module.exports.createCounter = createCounter;
+
+#+END_SRC
+
+** Evaluation
+   - You will be graded according to various other test cases as
+     well as the quality of your solution (Usage of in-built
+     functions wherever possible).
+
+** Naming convention
+
+   - 1. Use the same names of functions as mentioned in the
+     questions.
+
+   - 2. All the questions should be in the same file, and
+     the file is to be called "main.js".
+
+** Directory Structure
+
+  - 1. Each student has access to a repository whose name is
+    the roll-number of the student.
+
+  - 2. In your GitLab repository, you *must* follow the
+    directory structure as below:
+
+     #+BEGIN_EXAMPLE
+     -------------------------
+     <roll-no>
+     |
+     `----assignment-solutions
+          |
+          `--- assignment-5
+               |--- main.js
+     ------------------------
+     #+END_EXAMPLE
+
+** Strict Adherence
+
+If you do not adhere to this directory structure and naming,
+you *will* lose marks. The evaluation of this homework is
+*automated*.  So, please make sure that you don't miss
+hyphens and upper case letters in file, directory and
+function names.  No requests for regrading of your homework
+will be entertained if the directory structure or naming
+convention is not followed!
